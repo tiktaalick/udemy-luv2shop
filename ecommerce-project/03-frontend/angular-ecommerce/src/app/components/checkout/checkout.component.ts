@@ -1,6 +1,7 @@
+import { FormValidators } from './../../validators/form-validators';
 import { FormService as FormService } from '../../services/form.service';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, NgControl } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, NgControl, Validators } from '@angular/forms';
 import { Country } from 'src/app/common/country';
 import { State } from 'src/app/common/state';
 
@@ -29,16 +30,43 @@ export class CheckoutComponent implements OnInit {
   ngOnInit(): void {
     this.checkoutFormGroup = this.formBuilder.group({
       customer: this.formBuilder.group({
-        firstName: [''],
-        lastName: [''],
-        email: ['']
+        firstName: new FormControl('',
+          [Validators.required,
+          Validators.minLength(2),
+          FormValidators.notOnlyWhitespace]),
+        lastName: new FormControl('',
+          [Validators.required,
+          Validators.minLength(2),
+          FormValidators.notOnlyWhitespace]),
+        email: new FormControl('',
+          [Validators.required,
+          // Regular Expression:
+          // ^ = Beginning
+          // any combination of letters and digits and ._%+- 
+          // @
+          // any combination of letters and digits and .-
+          // .
+          // any combination of 2-4 letters
+          // $ = End
+          Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')]),
       }),
       shippingAddress: this.formBuilder.group({
-        street: [''],
-        city: [''],
-        state: [''],
-        country: [''],
-        zipCode: ['']
+        street: new FormControl('',
+          [Validators.required,
+          Validators.minLength(2),
+          FormValidators.notOnlyWhitespace]),
+        city: new FormControl('',
+          [Validators.required,
+          Validators.minLength(2),
+          FormValidators.notOnlyWhitespace]),
+        state: new FormControl('',
+          [Validators.required]),
+        country: new FormControl('',
+          [Validators.required,]),
+        zipCode: new FormControl('',
+          [Validators.required,
+          Validators.minLength(2),
+          FormValidators.notOnlyWhitespace])
       }),
       billingAddress: this.formBuilder.group({
         street: [''],
@@ -59,14 +87,12 @@ export class CheckoutComponent implements OnInit {
 
     this.formService.getCreditCardMonths(new Date().getMonth() + 1).subscribe(
       data => {
-        console.log(`Retrieved credit card months: ${JSON.stringify(data)}`);
         this.creditCardMonths = data;
       }
     );
 
     this.formService.getCreditCardYears().subscribe(
       data => {
-        console.log(`Retrieved credit card years: ${JSON.stringify(data)}`);
         this.creditCardYears = data;
       }
     );
@@ -77,6 +103,15 @@ export class CheckoutComponent implements OnInit {
       }
     )
   }
+
+  get firstName() { return this.checkoutFormGroup.get('customer.firstName'); }
+  get lastName() { return this.checkoutFormGroup.get('customer.lastName'); }
+  get email() { return this.checkoutFormGroup.get('customer.email'); }
+  get shippingAddressStreet() { return this.checkoutFormGroup.get('shippingAddress.street'); }
+  get shippingAddressCity() { return this.checkoutFormGroup.get('shippingAddress.city'); }
+  get shippingAddressState() { return this.checkoutFormGroup.get('shippingAddress.state'); }
+  get shippingAddressCountry() { return this.checkoutFormGroup.get('shippingAddress.country'); }
+  get shippingAddressZipCode() { return this.checkoutFormGroup.get('shippingAddress.zipCode'); }
 
   copyShippingAddressToBillingAddress(event: any) {
     if (event.target.checked) {
@@ -91,6 +126,11 @@ export class CheckoutComponent implements OnInit {
 
   onSubmit() {
     console.log('Handeling the submit button');
+
+    if (this.checkoutFormGroup.invalid) {
+      this.checkoutFormGroup.markAllAsTouched();
+    }
+
     console.log(this.checkoutFormGroup.get('customer')?.value);
     console.log(`The email address is ${this.checkoutFormGroup.get('customer')?.value?.email}`);
   }
@@ -110,10 +150,7 @@ export class CheckoutComponent implements OnInit {
   }
 
   getStates(formGroupName: string) {
-    console.log('getStates');
-    console.log(`formGroupName=${formGroupName}`);
     const formGroup = this.checkoutFormGroup.get(formGroupName);
-    console.log(`formGroup?.value?.country?.code=${formGroup?.value?.country?.code}`);
 
     this.formService.getStates(formGroup?.value?.country?.code).subscribe(
       data => {
