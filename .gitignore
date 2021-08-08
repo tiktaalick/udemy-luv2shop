@@ -1,7 +1,8 @@
+.DS_Store
+*.iml
 /my-code/
 /pdf-files/
 /ecommerce-project/01-starter-files/__MACOSX
-.DS_Store
 /ecommerce-project/02-backend/.idea
 /ecommerce-project/02-backend/spring-boot-ecommerce/.idea
 /ecommerce-project/02-backend/spring-boot-ecommerce/target
