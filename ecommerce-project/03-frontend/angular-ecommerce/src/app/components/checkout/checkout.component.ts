@@ -1,10 +1,15 @@
+import { Purchase } from './../../common/purchase';
+import { OrderItem } from './../../common/order-item';
+import { CheckoutService } from './../../services/checkout.service';
 import { CartService } from './../../services/cart.service';
 import { FormValidators } from './../../validators/form-validators';
 import { FormService as FormService } from '../../services/form.service';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, NgControl, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, NgControl, Validators } from '@angular/forms';
 import { Country } from 'src/app/common/country';
 import { State } from 'src/app/common/state';
+import { Router } from '@angular/router';
+import { Order } from 'src/app/common/order';
 
 @Component({
   selector: 'app-checkout',
@@ -25,7 +30,9 @@ export class CheckoutComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private formService: FormService,
-    private cartService: CartService
+    private cartService: CartService,
+    private checkoutService: CheckoutService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -173,14 +180,62 @@ export class CheckoutComponent implements OnInit {
   }
 
   onSubmit() {
-    console.log('Handeling the submit button');
+    console.log(this.checkoutFormGroup.get('lastName'));
 
     if (this.checkoutFormGroup.invalid) {
+      alert(this.reportInvalid());
       this.checkoutFormGroup.markAllAsTouched();
+      return;
     }
 
-    console.log(this.checkoutFormGroup.get('customer')?.value);
-    console.log(`The email address is ${this.checkoutFormGroup.get('customer')?.value?.email}`);
+    let order = new Order();
+    order.totalPrice = this.totalPrice;
+    order.totalQuantity = this.totalQuantity;
+
+    let orderItems: OrderItem[] = this.cartService.cartItems.map(item => new OrderItem(item));
+
+    let purchase: Purchase = new Purchase();
+
+    purchase.customer = this.checkoutFormGroup.controls['customer'].value;
+
+    purchase.shippingAddress = this.checkoutFormGroup.controls['shippingAddress'].value;
+    const shippingState: State = JSON.parse(JSON.stringify(purchase.shippingAddress.state));
+    const shippingCountry: Country = JSON.parse(JSON.stringify(purchase.shippingAddress.country));
+    purchase.shippingAddress.state = shippingState.name;
+    purchase.shippingAddress.country = shippingCountry.name;
+
+    purchase.billingAddress = this.checkoutFormGroup.controls['billingAddress'].value;
+    const billingState: State = JSON.parse(JSON.stringify(purchase.billingAddress.state));
+    const billingCountry: Country = JSON.parse(JSON.stringify(purchase.billingAddress.country));
+    purchase.billingAddress.state = billingState.name;
+    purchase.billingAddress.country = billingCountry.name;
+
+    purchase.order = order;
+    purchase.orderItems = orderItems
+
+    this.checkoutService.placeOrder(purchase).subscribe(
+      {
+        next: response => {
+          // Happy path
+          alert(`Your order has been received.\nOrder tracking number: ${response.orderTrackingNumber}`)
+
+          this.resetCart();
+        },
+        error: error => {
+          alert(`There was an error: ${error.message}`);
+        }
+      }
+    )
+  }
+
+  resetCart() {
+    this.cartService.cartItems = [];
+    this.cartService.totalPrice.next(0);
+    this.cartService.totalQuantity.next(0);
+
+    this.checkoutFormGroup.reset();
+
+    this.router.navigateByUrl('/products');
   }
 
   handelMonthsAndYears() {
@@ -212,4 +267,32 @@ export class CheckoutComponent implements OnInit {
       }
     );
   }
+
+  reportInvalid() {
+    const invalid = [];
+    const controls = this.checkoutFormGroup.controls;
+    for (const name in controls) {
+      if (controls[name].invalid) {
+        invalid.push(name);
+      }
+    }
+    return invalid;
+  }
+
+  getAllErrors(form: FormGroup | FormArray): { [key: string]: any; } | null {
+    let hasError = false;
+    const result = Object.keys(form.controls).reduce((acc, key) => {
+      const control = form.get(key);
+      const errors = (control instanceof FormGroup || control instanceof FormArray)
+        ? this.getAllErrors(control)
+        : control?.errors;
+      if (errors) {
+        acc[key] = errors;
+        hasError = true;
+      }
+      return acc;
+    }, {} as { [key: string]: any; });
+    return hasError ? result : null;
+  }
 }
+

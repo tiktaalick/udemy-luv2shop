@@ -41,6 +41,10 @@
                                         Last Name must be at least 2 characters
                                         long
                                     </div>
+                                    <div *ngIf="lastName?.errors">
+                                        <pre>lastName.valid={{lastName?.valid}}</pre>
+                                        <pre><code>{{ getAllErrors(checkoutFormGroup) | json }}</code></pre>
+                                    </div>
                                 </div>
                             </div>
                         </div>
