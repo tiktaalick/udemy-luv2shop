@@ -3,6 +3,7 @@ package com.luv2code.ecommerce.service;
 import com.luv2code.ecommerce.dao.CustomerRepository;
 import com.luv2code.ecommerce.dto.Purchase;
 import com.luv2code.ecommerce.dto.PurchaseResponse;
+import com.luv2code.ecommerce.entity.Customer;
 import com.luv2code.ecommerce.entity.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,14 @@ public class CheckoutServiceImpl implements CheckoutService {
 
         purchase.getOrderItems().forEach(item -> order.add(item));
 
-        customerRepository.save(purchase.getCustomer().add(order));
+        Customer customer = purchase.getCustomer();
+        Customer customerFromDb = customerRepository.findByEmail(customer.getEmail());
+
+        if(customerFromDb != null) {
+            customer = customerFromDb;
+        }
+
+        customerRepository.save(customer.add(order));
 
         return new PurchaseResponse(order.getOrderTrackingNumber());
     }
