@@ -8,3 +8,4 @@
 /ecommerce-project/02-backend/spring-boot-ecommerce/target
 /ecommerce-project/02-backend/spring-boot-ecommerce/.mvn
 /ecommerce-project/03-frontend/.vs
+/ecommerce-project/02-backend/spring-boot-ecommerce/src/main/resources/application-secret.properties

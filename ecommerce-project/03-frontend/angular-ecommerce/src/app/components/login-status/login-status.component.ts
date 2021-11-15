@@ -8,7 +8,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class LoginStatusComponent implements OnInit {
   isAuthenticated: boolean = false;
-  userFullName: string = '';
+  userFirstName: string = '';
 
   storage: Storage = sessionStorage;
 
@@ -27,8 +27,10 @@ export class LoginStatusComponent implements OnInit {
     if (this.isAuthenticated) {
       this.oktaAuthService.getUser().then(
         result => {
-          this.userFullName = result.name!;
+          this.userFirstName = result.given_name!;
           this.storage.setItem('userEmail', JSON.stringify(result.email));
+          this.storage.setItem('userFirstName', JSON.stringify(result.given_name));
+          this.storage.setItem('userLastName', JSON.stringify(result.family_name));
         }
       );
     }
