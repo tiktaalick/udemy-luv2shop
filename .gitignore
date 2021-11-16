@@ -9,3 +9,5 @@
 /ecommerce-project/02-backend/spring-boot-ecommerce/.mvn
 /ecommerce-project/03-frontend/.vs
 /ecommerce-project/02-backend/spring-boot-ecommerce/src/main/resources/application-secret.properties
+/ecommerce-project/03-frontend/angular-ecommerce/ssl-localhost/localhost.key
+/ecommerce-project/03-frontend/angular-ecommerce/ssl-localhost/localhost.crt
