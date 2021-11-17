@@ -1,18 +1,20 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Product } from '../common/product';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { ProductCategory } from '../common/product-category';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Product} from '../common/product';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
+import {ProductCategory} from '../common/product-category';
+import {environment} from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
-  private baseUrl = 'http://localhost:8080/api/products';
-  private categoryUrl = 'http://localhost:8080/api/product-category';
+  private baseUrl = environment.luv2shopApiUrl + '/products';
+  private categoryUrl = environment.luv2shopApiUrl + '/product-category';
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(private httpClient: HttpClient) {
+  }
 
   getProduct(productId: number): Observable<Product> {
     const productUrl = `${this.baseUrl}/${productId}`;
