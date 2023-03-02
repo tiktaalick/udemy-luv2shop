@@ -23,7 +23,7 @@
     "@ng-bootstrap/ng-bootstrap": "^10.0.0",
     "@okta/okta-angular": "^3.2.2",
     "@okta/okta-signin-widget": "^5.9.4",
-    "bootstrap": "^5.0.2",
+    "bootstrap": "^5.2.3",
     "rxjs": "~6.6.0",
     "tslib": "^2.2.0",
     "zone.js": "~0.11.4"
