@@ -21,7 +21,7 @@
     "@angular/router": "~13.0.2",
     "@fortawesome/fontawesome-free": "^5.15.3",
     "@ng-bootstrap/ng-bootstrap": "^10.0.0",
-    "@okta/okta-angular": "^3.2.2",
+    "@okta/okta-angular": "^4.0.0",
     "@okta/okta-signin-widget": "^5.9.4",
     "bootstrap": "^5.0.2",
     "rxjs": "~6.6.0",
